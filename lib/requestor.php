@@ -7,6 +7,7 @@ class CKRequestor {
         // Provide API Key and secret
         $this->api_key = $api_key;
         $this->api_secret = $api_secret;
+        
         if (!$this->host = $host)
             $this->host = 'https://api.coinkite.com';
         
@@ -193,7 +194,7 @@ class CKRequestor {
             
         if ($just_count) {
             $args['limit'] = 0;
-            $data = json_decode($this->get($ep, $args), true);
+            $data = $this->get($ep, $args);
             return $data['paging']['total_count'];
         }
 
