@@ -26,10 +26,15 @@ class CKRequestor {
         $url = $this->host . $endpt;
         $endpt = parse_url($url, PHP_URL_PATH);
         
-        if (is_array($headers))
-            $hdrs = array_merge($this->auth_headers($endpt), $headers);
+        if (substr($endpt, 0, 7) == '/public')
+            $auth_headers = array();
         else
-            $hdrs = $this->auth_headers($endpt);
+            $auth_headers = $this->auth_headers($endpt);
+
+        if (is_array($headers))
+            $hdrs = array_merge($auth_headers, $headers);
+        else
+            $hdrs = $auth_headers;
 
         if (isset($args)) {
             if (is_array($args))
@@ -111,6 +116,7 @@ class CKRequestor {
     }
 
     function get_iter($endpoint, $offset=0, $limit=null, $batch_size=25, $safety_limit=500, $args=null) {
+        // Return a Generator that will iterate over all results, regardless of how many
         while(true) {
             if ($limit && $limit < $batch_size)
                 $batch_size = $limit;
@@ -128,7 +134,7 @@ class CKRequestor {
             
             $here = $rv['paging']['count_here'];
             $total = $rv['paging']['total_count'];
-            
+
             if ($total > $safety_limit)
                 die("Too many results ($total); consider another approach");
                 
@@ -203,11 +209,8 @@ class CKRequestor {
 
     function ck_error($status, $err) {
         error_log($err, 0);
-        
         $err_array = json_decode($err, true);
-        //die("[$status] " . $err_array['message']); // This will show only the short message, no details
-        die("[Error $status] $err"); // This will show all the returned JSON
+        die("[Error $status] " . $err_array['message']);
     }
 }
-
 ?>
