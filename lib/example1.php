@@ -19,7 +19,7 @@ $rates = $CK_API->get('/public/rates');
         <h2>
             This example uses the '/public/rates' API endpoint to get market rates for 
             various currency pairs.<br/>
-            Note that not API keys are not required for this.
+            Note that no API keys are not required for this.
         </h2>
         <p>
             The current Bitcoin (<?php echo $rates['currencies']['BTC']['sign']; ?>)
