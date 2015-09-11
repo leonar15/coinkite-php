@@ -93,10 +93,10 @@ class CKRequestor {
     function auth_headers($endpoint, $force_ts=false) {
         // Make authorization headers that are needed to access indicated endpoint
         if (!$this->api_key)
-            die('API Key for Coinkite is required.');
+            throw new Exception('API Key for Coinkite is required.');
 
         if (!$this->api_secret)
-            die('API Secret for Coinkite is required.');
+            throw new Exception('API Secret for Coinkite is required.');
         
         $sig_ts = $this->make_signature($endpoint, $force_ts);
         
@@ -136,7 +136,7 @@ class CKRequestor {
             $total = $rv['paging']['total_count'];
 
             if ($total > $safety_limit)
-                die("Too many results ($total); consider another approach");
+                throw new Exception("Too many results ($total); consider another approach");
                 
             if (!$here)
                 return;
@@ -210,7 +210,7 @@ class CKRequestor {
     function ck_error($status, $err) {
         error_log($err, 0);
         $err_array = json_decode($err, true);
-        die("[Error $status] " . $err_array['message']);
+        throw new Exception("[Error $status] " . $err_array['message']);
     }
 }
 ?>
