@@ -8,8 +8,9 @@ class CKRequestor {
         $this->api_key = $api_key;
         $this->api_secret = $api_secret;
         
-        if (!$this->host = $host)
+        if (!$this->host = $host) {
             $this->host = 'https://api.coinkite.com';
+        }
         
         $this->client = $client;
     }
@@ -26,24 +27,28 @@ class CKRequestor {
         $url = $this->host . $endpt;
         $endpt = parse_url($url, PHP_URL_PATH);
         
-        if (substr($endpt, 0, 7) == '/public')
+        if (substr($endpt, 0, 7) == '/public') {
             $auth_headers = array();
-        else
+        } else {
             $auth_headers = $this->auth_headers($endpt);
+        }
 
-        if (is_array($headers))
+        if (is_array($headers)) {
             $hdrs = array_merge($auth_headers, $headers);
-        else
+        } else {
             $hdrs = $auth_headers;
+        }
 
         if (isset($args)) {
-            if (is_array($args))
+            if (is_array($args)) {
                 $data = $args;
-            else
+            } else {
                 $data = json_decode($args, true);
+            }
 
-            if ($data && $method == 'GET')
+            if ($data && $method == 'GET') {
                 $url .= '?' . http_build_query($data);
+            }
         }
 
         while (true) {
@@ -63,14 +68,16 @@ class CKRequestor {
         
             curl_close($curl);
 
-            if ($status == 429 && $body['wait_time'])
+            if ($status == 429 && $body['wait_time']) {
                 sleep($body['wait_time']);
-            else
+            } else {
                 break;
+            }
         }
         
-        if ($status != 200)
+        if ($status != 200) {
             $this->ck_error($status, $body_json);
+        }
             
         return $body;
     }
@@ -92,11 +99,13 @@ class CKRequestor {
     
     function auth_headers($endpoint, $force_ts=false) {
         // Make authorization headers that are needed to access indicated endpoint
-        if (!$this->api_key)
+        if (!$this->api_key) {
             throw new Exception('API Key for Coinkite is required.');
+        }
 
-        if (!$this->api_secret)
+        if (!$this->api_secret) {
             throw new Exception('API Secret for Coinkite is required.');
+        }
         
         $sig_ts = $this->make_signature($endpoint, $force_ts);
         
@@ -118,14 +127,16 @@ class CKRequestor {
     function get_iter($endpoint, $offset=0, $limit=null, $batch_size=25, $safety_limit=500, $args=null) {
         // Return a Generator that will iterate over all results, regardless of how many
         while(true) {
-            if ($limit && $limit < $batch_size)
+            if ($limit && $limit < $batch_size) {
                 $batch_size = $limit;
+            }
             
             if (isset($args)) {
-                if (is_array($args))
+                if (is_array($args)) {
                     $data = $args;
-                else
+                } else {
                     $data = json_decode($args, true);
+                }
             }
             $data['offset'] = $offset;
             $data['limit'] = $batch_size;
@@ -135,20 +146,24 @@ class CKRequestor {
             $here = $rv['paging']['count_here'];
             $total = $rv['paging']['total_count'];
 
-            if ($total > $safety_limit)
+            if ($total > $safety_limit) {
                 throw new Exception("Too many results ($total); consider another approach");
+            }
                 
-            if (!$here)
+            if (!$here) {
                 return;
+            }
                 
-            foreach ($rv['results'] as $i)
+            foreach ($rv['results'] as $i) {
                 yield $i;
+            }
                 
             $offset += $here;
             if ($limit) {
                 $limit -= $here;
-                if ($limit <= 0)
+                if ($limit <= 0) {
                     return;
+                }
             }
         }
     }
@@ -195,8 +210,9 @@ class CKRequestor {
         
         $ep = '/v1/list/' . $what;
         
-        if (isset($account))
+        if (isset($account)) {
             $args['account'] = $account;
+        }
             
         if ($just_count) {
             $args['limit'] = 0;
