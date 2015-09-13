@@ -1,4 +1,6 @@
 <?php
+include('CKException.php');
+
 date_default_timezone_set('UTC');
 
 class CKRequestor {
@@ -61,8 +63,13 @@ class CKRequestor {
             curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($curl, CURLOPT_CAINFO, 'data/ca-certificates.crt');
-        
+            
             $body_json = curl_exec($curl);
+
+            if ($status == 504) {
+                throw new CKException($status, $body_json);
+            }
+
             $body = json_decode($body_json, true);
             $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         
@@ -76,7 +83,7 @@ class CKRequestor {
         }
         
         if ($status != 200) {
-            $this->ck_error($status, $body_json);
+            throw new CKException($status, $body_json);
         }
             
         return $body;
@@ -100,11 +107,11 @@ class CKRequestor {
     function auth_headers($endpoint, $force_ts=false) {
         // Make authorization headers that are needed to access indicated endpoint
         if (!$this->api_key) {
-            throw new Exception('API Key for Coinkite is required.');
+            throw new CKException(0, '{"message":"API Key for Coinkite is required"}');
         }
 
         if (!$this->api_secret) {
-            throw new Exception('API Secret for Coinkite is required.');
+            throw new CKException(0, '{"message":"API Secret for Coinkite is required"}');
         }
         
         $sig_ts = $this->make_signature($endpoint, $force_ts);
@@ -147,7 +154,7 @@ class CKRequestor {
             $total = $rv['paging']['total_count'];
 
             if ($total > $safety_limit) {
-                throw new Exception("Too many results ($total); consider another approach");
+                throw new CKException(0, "{\"message\":\"Too many results ($total); consider another approach\"}");
             }
                 
             if (!$here) {
@@ -221,12 +228,6 @@ class CKRequestor {
         }
 
         return $this->get_iter($ep);
-    }
-
-    function ck_error($status, $err) {
-        error_log($err, 0);
-        $err_array = json_decode($err, true);
-        throw new Exception("[Error $status] " . $err_array['message']);
     }
 }
 ?>
