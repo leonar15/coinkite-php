@@ -65,14 +65,14 @@ class CKRequestor {
             curl_setopt($curl, CURLOPT_CAINFO, 'data/ca-certificates.crt');
             
             $body_json = curl_exec($curl);
+            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
             if ($status == 504) {
                 throw new CKException($status, $body_json);
             }
 
             $body = json_decode($body_json, true);
-            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        
+
             curl_close($curl);
 
             if ($status == 429 && $body['wait_time']) {
