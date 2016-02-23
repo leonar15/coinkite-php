@@ -35,5 +35,3 @@ class CKException extends Exception {
          return $msg_text;
     }
 }
-
-?>
