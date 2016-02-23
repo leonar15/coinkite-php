@@ -1,5 +1,5 @@
 <?php
-require('requestor.php');
+require('../lib/CKRequestor.php');
 
 // Create Coinkite API requestor object
 $CK_API = new CKRequestor('this-is-my-key', 'this-is-my-secret');
@@ -31,7 +31,7 @@ $ck_auth = $CK_API->put($ck_send['next_step']);
         <p>
             [<?php echo $ck_auth['result']['CK_refnum']; ?>]
             <?php echo $ck_auth['result']['amount']['pretty']; ?>
-            sent to address: 
+            sent to address:
             <?php echo $ck_auth['result']['destination']; ?>
         </p>
     </body>

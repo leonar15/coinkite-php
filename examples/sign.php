@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('UTC');
 
-function sign($endpoint, $force_ts=false) 
+function sign($endpoint, $force_ts=false)
 {
 	# Replace these values.
 	$API_KEY = 'this-is-my-key';
